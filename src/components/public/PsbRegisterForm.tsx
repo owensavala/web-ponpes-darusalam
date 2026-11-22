@@ -79,6 +79,16 @@ export default function PsbRegisterForm({
     ijazahUrl: '',
   });
 
+  // Sync unitId jika searchParams '?unit=...' terdeteksi atau berubah
+  React.useEffect(() => {
+    if (preselectedUnitSlug) {
+      const match = units.find((u) => u.slug === preselectedUnitSlug);
+      if (match && match.id !== formData.unitId) {
+        setFormData((prev) => ({ ...prev, unitId: match.id }));
+      }
+    }
+  }, [preselectedUnitSlug, units]);
+
   const selectedUnit = units.find((u) => u.id === formData.unitId) || units[0];
 
   const handleTextChange = (

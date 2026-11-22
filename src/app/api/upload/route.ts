@@ -59,8 +59,9 @@ export async function POST(req: NextRequest) {
       .replace(/[^a-z0-9_-]/g, '-');
     const uniqueFileName = `${Date.now()}-${baseName.slice(0, 30)}${originalExt}`;
 
-    // Target direktori
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', folder);
+    // Target direktori (dukung UPLOADS_DIR untuk Docker volume / VPS permanen)
+    const baseDir = process.env.UPLOADS_DIR || path.join(process.cwd(), 'public', 'uploads');
+    const uploadDir = path.join(/*turbopackIgnore: true*/ baseDir, folder);
     await fs.mkdir(uploadDir, { recursive: true });
 
     const filePath = path.join(uploadDir, uniqueFileName);
@@ -69,7 +70,8 @@ export async function POST(req: NextRequest) {
 
     await fs.writeFile(filePath, buffer);
 
-    const publicUrl = `/uploads/${folder}/${uniqueFileName}`;
+    // Gunakan Route Handler /api/files/ agar selalu disajikan dinamis secara instan tanpa perlu restart server
+    const publicUrl = `/api/files/${folder}/${uniqueFileName}`;
 
     return NextResponse.json({
       success: true,

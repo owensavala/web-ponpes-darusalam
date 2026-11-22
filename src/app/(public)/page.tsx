@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import { formatTanggal, formatRupiah } from '@/lib/utils';
+import GreetingExcerpt from '@/components/public/GreetingExcerpt';
 
 export default async function HomePage() {
   // Ambil data untuk Beranda
@@ -222,28 +223,23 @@ export default async function HomePage() {
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F2A24] tracking-tight">
-                  {settings?.greetingTitle || 'Menempa Santri Berakhlak Qur&apos;ani Menuju Kejayaan Ummat'}
+                  {settings?.greetingTitle || 'Menempa Santri Berakhlak Qur\'ani Menuju Kejayaan Ummat'}
                 </h2>
 
-                <div className="text-xs sm:text-sm text-slate-600 leading-relaxed space-y-3 whitespace-pre-line">
-                  {settings?.greetingText || `Assalamu'alaikum Warahmatullahi Wabarakatuh.
-Puji syukur ke hadirat Allah SWT. Pondok Pesantren Darussalam Bacan hadir di Desa Kupal, Halmahera Selatan sebagai wadah pembinaan generasi muda Islam. Kami bertekad memadukan hafalan Al-Qur'an 30 juz, penguasaan kitab kuning, serta keunggulan sains dan teknologi agar santri siap menghadapi tantangan zaman.`}
-                </div>
+                <GreetingExcerpt
+                  greetingText={
+                    settings?.greetingText ||
+                    `Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\nPuji syukur ke hadirat Allah SWT. Pondok Pesantren Darussalam Bacan hadir di Desa Kupal, Halmahera Selatan sebagai wadah pembinaan generasi muda Islam. Kami bertekad memadukan hafalan Al-Qur'an 30 juz, penguasaan kitab kuning, serta keunggulan sains dan teknologi agar santri siap menghadapi tantangan zaman.`
+                  }
+                />
 
-                <div className="pt-2 flex flex-wrap items-center gap-4">
-                  <Link
-                    href="/profil/pengasuh-pengurus"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F2A24] hover:text-[#173B32] hover:underline"
-                  >
-                    <span>Profil Lengkap Pengasuh & Dewan Asatidz</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                  <span className="text-slate-300">|</span>
+                <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-semibold">
                   <Link
                     href="/profil/sejarah-visi-misi"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#71867E] hover:text-[#0F2A24]"
+                    className="inline-flex items-center gap-1.5 text-[#71867E] hover:text-[#0F2A24] hover:underline"
                   >
-                    <span>Visi & Misi Lembaga</span>
+                    <span>Visi, Misi & Sejarah Lembaga</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>
@@ -323,9 +319,9 @@ Puji syukur ke hadirat Allah SWT. Pondok Pesantren Darussalam Bacan hadir di Des
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                     <Link
-                      href="/psb/daftar"
-                      className="py-2.5 px-3 rounded-xl bg-[#D8C28A] hover:bg-[#C5A55D] text-[#0F2A24] text-xs font-bold transition"
-                      title="Daftar unit ini"
+                      href={`/psb/daftar?unit=${unit.slug}`}
+                      className="py-2.5 px-3 rounded-xl bg-[#D8C28A] hover:bg-[#C5A55D] text-[#0F2A24] text-xs font-bold transition shadow-sm hover:shadow active:scale-95"
+                      title={`Daftar ke ${unit.name}`}
                     >
                       Daftar
                     </Link>
