@@ -1,0 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String         @id @default(cuid())
+  name      String
+  email     String         @unique
+  password  String
+  role      String         @default("ADMIN_UNIT")
+  unitId    String?
+  unit      EducationUnit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  isActive  Boolean        @default(true)
+  posts     Post[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model EducationUnit {
+  id               String             @id @default(cuid())
+  name             String
+  shortName        String
+  slug             String             @unique
+  level            String
+  npsn             String?
+  accreditation    String?
+  headmasterName   String?
+  headmasterPhoto  String?
+  logoUrl          String?
+  heroImageUrl     String?
+  tagline          String?
+  description      String             @db.Text
+  vision           String?            @db.Text
+  mission          String?            @db.Text
+  curriculum       String?            @db.Text
+  extracurriculars String?            @db.Text
+  dailySchedule    String?            @db.Text
+  whatsappNumber   String?
+  email            String?
+  registrationFee  Int                @default(0)
+  isPsbOpen        Boolean            @default(true)
+  displayOrder     Int                @default(0)
+  isActive         Boolean            @default(true)
+
+  users            User[]
+  posts            Post[]
+  galleries        GalleryAlbum[]
+  achievements     Achievement[]
+  downloads        DocumentDownload[]
+  psbRegistrations PsbRegistration[]
+
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
+model Post {
+  id           String         @id @default(cuid())
+  title        String
+  slug         String         @unique
+  excerpt      String?        @db.Text
+  content      String         @db.Text
+  thumbnailUrl String?
+  type         String         @default("BERITA")
+  status       String         @default("PUBLISHED")
+  isPinned     Boolean        @default(false)
+  views        Int            @default(0)
+  unitId       String?
+  unit         EducationUnit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  authorId     String
+  author       User           @relation(fields: [authorId], references: [id])
+  publishedAt  DateTime?      @default(now())
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([type, status, unitId])
+}
+
+model GalleryAlbum {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  coverUrl    String?
+  unitId      String?
+  unit        EducationUnit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  items       GalleryItem[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model GalleryItem {
+  id        String       @id @default(cuid())
+  albumId   String
+  album     GalleryAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  mediaType String       @default("IMAGE")
+  url       String
+  caption   String?
+  createdAt DateTime     @default(now())
+}
+
+model Leadership {
+  id           String   @id @default(cuid())
+  name         String
+  position     String
+  category     String
+  bio          String?  @db.Text
+  photoUrl     String?
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Facility {
+  id           String   @id @default(cuid())
+  name         String
+  category     String
+  description  String?  @db.Text
+  imageUrl     String?
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Achievement {
+  id          String         @id @default(cuid())
+  title       String
+  category    String
+  studentName String?
+  year        Int
+  description String?        @db.Text
+  imageUrl    String?
+  unitId      String?
+  unit        EducationUnit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model DocumentDownload {
+  id          String         @id @default(cuid())
+  title       String
+  category    String
+  fileUrl     String
+  fileSize    String?
+  downloads   Int            @default(0)
+  unitId      String?
+  unit        EducationUnit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model PsbPeriod {
+  id            String            @id @default(cuid())
+  name          String
+  academicYear  String
+  startDate     DateTime
+  endDate       DateTime
+  isActive      Boolean           @default(true)
+  requirements  String?           @db.Text
+  registrations PsbRegistration[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model PsbRegistration {
+  id             String        @id @default(cuid())
+  regNumber      String        @unique
+  periodId       String
+  period         PsbPeriod     @relation(fields: [periodId], references: [id])
+  unitId         String
+  unit           EducationUnit @relation(fields: [unitId], references: [id])
+
+  fullName       String
+  nisn           String?
+  nik            String
+  gender         String        @default("LAKI_LAKI")
+  birthPlace     String
+  birthDate      DateTime
+  previousSchool String?
+  isBoarding     Boolean       @default(true)
+  address        String        @db.Text
+
+  fatherName     String
+  motherName     String
+  guardianPhone  String
+  guardianJob    String?
+
+  photoUrl       String?
+  kkUrl          String?
+  aktaUrl        String?
+  ijazahUrl      String?
+
+  status         String        @default("PENDING")
+  adminNotes     String?       @db.Text
+  verifiedAt     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([unitId, status, periodId])
+}
+
+model SiteSetting {
+  id               String   @id @default("default")
+  siteName         String   @default("Pondok Pesantren Darussalam Bacan")
+  foundationName   String   @default("Yayasan Darussalam Bacan")
+  npyp             String   @default("AZ5439")
+  address          String   @default("Jl. Pesantren, Desa Kupal, Kec. Bacan Selatan, Kab. Halmahera Selatan, Maluku Utara")
+  mainWhatsapp     String   @default("6282293883344")
+  email            String   @default("info@darussalambacan.sch.id")
+  logoUrl          String?
+  heroImageUrl     String?
+  heroTagline      String   @default("Mencetak Generasi Qur'ani, Berilmu, Berakhlak Mulia, dan Berwawasan Global di Bumi Saruma")
+  greetingTitle    String   @default("Sambutan Pengasuh Pondok Pesantren Darussalam")
+  greetingName     String   @default("KH. Asep Sofyan, Lc., M.Pd.I")
+  greetingText     String   @db.Text
+  greetingPhotoUrl String?
+  historyText      String?  @db.Text
+  visionText       String?  @db.Text
+  missionText      String?  @db.Text
+  mapsEmbedUrl     String?  @db.Text
+  instagramUrl     String?
+  facebookUrl      String?
+  youtubeUrl       String?
+  updatedAt        DateTime @updatedAt
+}

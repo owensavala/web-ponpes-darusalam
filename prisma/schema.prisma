@@ -1,0 +1,233 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String         @id @default(cuid())
+  name      String
+  email     String         @unique
+  password  String
+  role      String         @default("ADMIN_UNIT") // SUPER_ADMIN, ADMIN_UNIT, PANITIA_PSB
+  unitId    String?        // Wajib diisi jika role = ADMIN_UNIT / PANITIA_PSB unit tertentu
+  unit      EducationUnit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  isActive  Boolean        @default(true)
+  posts     Post[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model EducationUnit {
+  id               String             @id @default(cuid())
+  name             String             // e.g., "SMP Tahfizh Darusalam Bacan"
+  shortName        String             // e.g., "SMP Tahfizh"
+  slug             String             @unique
+  level            String             // e.g., "Nonformal / Asrama", "MTs", "SMP", "MA", "PKBM"
+  npsn             String?            // e.g., "70058312"
+  accreditation    String?            // e.g., "C", "B", "Dalam Proses"
+  headmasterName   String?
+  headmasterPhoto  String?
+  logoUrl          String?
+  heroImageUrl     String?
+  tagline          String?
+  description      String
+  vision           String?
+  mission          String?
+  curriculum       String?            // Markdown / JSON list
+  extracurriculars String?            // JSON array string
+  dailySchedule    String?            // Khusus Pondok/Asrama
+  whatsappNumber   String?            // Format: 628xxxx
+  email            String?
+  registrationFee  Int                @default(0)
+  isPsbOpen        Boolean            @default(true)
+  displayOrder     Int                @default(0)
+  isActive         Boolean            @default(true)
+
+  users            User[]
+  posts            Post[]
+  galleries        GalleryAlbum[]
+  achievements     Achievement[]
+  downloads        DocumentDownload[]
+  psbRegistrations PsbRegistration[]
+
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
+model Post {
+  id           String         @id @default(cuid())
+  title        String
+  slug         String         @unique
+  excerpt      String?
+  content      String
+  thumbnailUrl String?
+  type         String         @default("BERITA") // BERITA, PENGUMUMAN
+  status       String         @default("PUBLISHED") // DRAFT, PUBLISHED
+  isPinned     Boolean        @default(false)
+  views        Int            @default(0)
+  unitId       String?        // Null = Umum / Yayasan
+  unit         EducationUnit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  authorId     String
+  author       User           @relation(fields: [authorId], references: [id])
+  publishedAt  DateTime?      @default(now())
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([type, status, unitId])
+}
+
+model GalleryAlbum {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  coverUrl    String?
+  unitId      String?
+  unit        EducationUnit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  items       GalleryItem[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model GalleryItem {
+  id        String       @id @default(cuid())
+  albumId   String
+  album     GalleryAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  mediaType String       @default("IMAGE") // IMAGE, VIDEO_EMBED
+  url       String
+  caption   String?
+  createdAt DateTime     @default(now())
+}
+
+model Leadership {
+  id           String   @id @default(cuid())
+  name         String
+  position     String   // e.g., "Pengasuh Pondok", "Ketua Yayasan"
+  category     String   // YAYASAN, PENGASUH, KEPALA_UNIT
+  bio          String?
+  photoUrl     String?
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Facility {
+  id           String   @id @default(cuid())
+  name         String   // e.g., "Masjid Jami' Darussalam", "Asrama Putra"
+  category     String   // IBADAH, ASRAMA, AKADEMIK, PENUNJANG
+  description  String?
+  imageUrl     String?
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Achievement {
+  id          String         @id @default(cuid())
+  title       String         // e.g., "Studi Lanjut Santri ke Jerman"
+  category    String         // PRESTASI, ALUMNI
+  studentName String?
+  year        Int
+  description String?
+  imageUrl    String?
+  unitId      String?
+  unit        EducationUnit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model DocumentDownload {
+  id          String         @id @default(cuid())
+  title       String         // e.g., "Brosur PSB 2026/2027"
+  category    String         // PSB, AKADEMIK, SURAT
+  fileUrl     String
+  fileSize    String?
+  downloads   Int            @default(0)
+  unitId      String?
+  unit        EducationUnit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model PsbPeriod {
+  id            String            @id @default(cuid())
+  name          String            // e.g., "Gelombang 1 - TA 2026/2027"
+  academicYear  String            // e.g., "2026/2027"
+  startDate     DateTime
+  endDate       DateTime
+  isActive      Boolean           @default(true)
+  requirements  String?
+  registrations PsbRegistration[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model PsbRegistration {
+  id             String        @id @default(cuid())
+  regNumber      String        @unique // Format: PSB-2026-SMP-0001
+  periodId       String
+  period         PsbPeriod     @relation(fields: [periodId], references: [id])
+  unitId         String
+  unit           EducationUnit @relation(fields: [unitId], references: [id])
+
+  // Data Calon Santri
+  fullName       String
+  nisn           String?
+  nik            String
+  gender         String        @default("LAKI_LAKI") // LAKI_LAKI, PEREMPUAN
+  birthPlace     String
+  birthDate      DateTime
+  previousSchool String?
+  isBoarding     Boolean       @default(true) // Mukim (Asrama) vs Non-Mukim
+  address        String
+
+  // Data Orang Tua / Wali
+  fatherName     String
+  motherName     String
+  guardianPhone  String        // Nomor WA aktif
+  guardianJob    String?
+
+  // Berkas Upload (File path dari /api/upload)
+  photoUrl       String?
+  kkUrl          String?
+  aktaUrl        String?
+  ijazahUrl      String?
+
+  // Status Verifikasi
+  status         String        @default("PENDING") // PENDING, VERIFIED, REVISION, ACCEPTED, REJECTED
+  adminNotes     String?
+  verifiedAt     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([unitId, status, periodId])
+}
+
+model SiteSetting {
+  id               String   @id @default("default")
+  siteName         String   @default("Pondok Pesantren Darussalam Bacan")
+  foundationName   String   @default("Yayasan Darussalam Bacan")
+  npyp             String   @default("AZ5439")
+  skMenkumham      String?  @default("AHU 00147.50.10.2014")
+  address          String   @default("Jl. Pesantren, Desa Kupal, Kec. Bacan Selatan, Kab. Halmahera Selatan, Maluku Utara")
+  mainWhatsapp     String   @default("6282293883344")
+  email            String   @default("info@darussalambacan.sch.id")
+  logoUrl          String?
+  heroImageUrl     String?
+  heroTagline      String   @default("Mencetak Generasi Qur'ani, Berilmu, Berakhlak Mulia, dan Berwawasan Global di Bumi Saruma")
+  greetingTitle    String   @default("Sambutan Pengasuh Pondok Pesantren Darussalam")
+  greetingName     String   @default("KH. Asep Sofyan, Lc., M.Pd.I")
+  greetingText     String   @default("Assalamu'alaikum Warahmatullahi Wabarakatuh. Puji syukur kita panjatkan ke hadirat Allah SWT...")
+  greetingPhotoUrl String?
+  historyText      String?
+  visionText       String?
+  missionText      String?
+  mapsEmbedUrl     String?
+  instagramUrl     String?
+  facebookUrl      String?
+  youtubeUrl       String?
+  updatedAt        DateTime @updatedAt
+}

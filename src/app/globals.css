@@ -1,26 +1,88 @@
 @import "tailwindcss";
 
+@theme {
+  --color-forest-950: #081714;
+  --color-forest-900: #0F2A24;
+  --color-forest-800: #173B32;
+  --color-forest-700: #1E4D41;
+  --color-forest-600: #266052;
+  --color-forest-500: #35806E;
+
+  --color-cream-50: #FCFAF6;
+  --color-cream-100: #F7F3E9;
+  --color-cream-200: #F2EEE3;
+  --color-cream-300: #E6DECB;
+
+  --color-gold-400: #E4D3A7;
+  --color-gold-500: #D8C28A;
+  --color-gold-600: #C5A55D;
+  --color-gold-700: #A8863A;
+
+  --color-sage-400: #A8BCB5;
+  --color-sage-500: #8FA39B;
+  --color-sage-600: #71867E;
+
+  --font-heading: var(--font-jakarta), system-ui, sans-serif;
+  --font-arabic: var(--font-amiri), serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #FAF8F2;
+  --foreground: #0F2A24;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Islamic Geometric Pattern & Decorative Accents */
+.bg-islamic-pattern {
+  background-color: #0F2A24;
+  background-image: radial-gradient(rgba(216, 194, 138, 0.12) 1px, transparent 1px), radial-gradient(rgba(216, 194, 138, 0.08) 1px, #0F2A24 1px);
+  background-size: 36px 36px;
+  background-position: 0 0, 18px 18px;
+}
+
+.bg-islamic-pattern-light {
+  background-color: #FAF8F2;
+  background-image: radial-gradient(rgba(15, 42, 36, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.font-arabic {
+  font-family: var(--font-amiri), "Traditional Arabic", "Amiri", serif;
+}
+
+/* Hover bridge for dropdowns to eliminate gap issues */
+.dropdown-container {
+  position: relative;
+}
+.dropdown-bridge {
+  padding-top: 0.5rem;
+}
+
+/* Print Optimization for Kartu Pendaftaran */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12pt;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-page {
+    page-break-after: always;
+    box-shadow: none !important;
+    border: 2px solid #0F2A24 !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    width: 100% !important;
+  }
 }
