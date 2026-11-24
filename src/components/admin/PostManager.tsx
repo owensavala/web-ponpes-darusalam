@@ -8,6 +8,7 @@ import { Plus, Edit2, Trash2, Eye, Calendar, Sparkles, Pin } from 'lucide-react'
 import Button from '@/components/ui/Button';
 import PostFormModal from './PostFormModal';
 import { formatTanggal } from '@/lib/utils';
+import { UserSession } from '@/lib/auth';
 
 interface PostItem {
   id: string;
@@ -29,9 +30,10 @@ interface PostItem {
 interface PostManagerProps {
   initialPosts: PostItem[];
   units: { id: string; shortName: string }[];
+  session?: UserSession;
 }
 
-export default function PostManager({ initialPosts, units }: PostManagerProps) {
+export default function PostManager({ initialPosts, units, session }: PostManagerProps) {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<PostItem | null>(null);
@@ -219,6 +221,7 @@ export default function PostManager({ initialPosts, units }: PostManagerProps) {
           postToEdit={selectedPost}
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
+          session={session}
         />
       )}
     </div>

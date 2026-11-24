@@ -21,8 +21,8 @@ interface AdminPsbPeriodeProps {
 export default async function AdminPsbPeriodePage({ searchParams }: AdminPsbPeriodeProps) {
   const session = await getSession();
 
-  if (!session || (session.role !== 'SUPER_ADMIN' && session.role !== 'PANITIA_PSB')) {
-    redirect('/admin');
+  if (!session || session.role !== 'SUPER_ADMIN') {
+    redirect('/admin?error=forbidden');
   }
 
   const { edit } = await searchParams;
@@ -38,6 +38,10 @@ export default async function AdminPsbPeriodePage({ searchParams }: AdminPsbPeri
 
   async function savePeriodAction(formData: FormData) {
     'use server';
+    const curSession = await getSession();
+    if (!curSession || curSession.role !== 'SUPER_ADMIN') {
+      throw new Error('Akses ditolak: Hanya Super Admin yang diizinkan mengelola periode.');
+    }
     const periodId = formData.get('periodId') as string;
     const name = formData.get('name') as string;
     const academicYear = formData.get('academicYear') as string;
@@ -77,6 +81,10 @@ export default async function AdminPsbPeriodePage({ searchParams }: AdminPsbPeri
 
   async function deletePeriodAction(formData: FormData) {
     'use server';
+    const curSession = await getSession();
+    if (!curSession || curSession.role !== 'SUPER_ADMIN') {
+      throw new Error('Akses ditolak: Hanya Super Admin yang diizinkan menghapus periode.');
+    }
     const periodId = formData.get('periodId') as string;
 
     // Cek apakah ada pendaftar terikat
@@ -99,6 +107,10 @@ export default async function AdminPsbPeriodePage({ searchParams }: AdminPsbPeri
 
   async function toggleActiveAction(formData: FormData) {
     'use server';
+    const curSession = await getSession();
+    if (!curSession || curSession.role !== 'SUPER_ADMIN') {
+      throw new Error('Akses ditolak: Hanya Super Admin yang diizinkan mengubah status periode.');
+    }
     const periodId = formData.get('periodId') as string;
     const currentActive = formData.get('currentActive') === 'true';
 

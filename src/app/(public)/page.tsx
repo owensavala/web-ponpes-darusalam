@@ -78,7 +78,7 @@ export default async function HomePage() {
               {/* Subtitle */}
               <p className="text-sm sm:text-base text-[#8FA39B] max-w-2xl mx-auto lg:mx-0 leading-relaxed">
                 Pusat pendidikan Islam terpadu di bawah naungan <strong>Yayasan Darussalam Bacan</strong> (NPYP: AZ5439). 
-                Memadukan keteguhan tahfizh Al-Qur&apos;an 30 juz, sanad kitab kuning, dan kurikulum formal nasional dari tingkat dasar hingga pendidikan tinggi.
+                Memadukan keteguhan tahfizh Al-Qur&apos;an 30 juz, sanad kitab kuning, dan kurikulum formal nasional dari tingkat dasar, menengah, hingga pendidikan kesetaraan dan vokasi.
               </p>
 
               {/* CTA Action Buttons */}
@@ -282,12 +282,16 @@ export default async function HomePage() {
                   <h3 className="text-lg font-bold text-[#F2EEE3] group-hover:text-[#D8C28A] transition">
                     {unit.name}
                   </h3>
-                  {unit.npsn && (
+                  {unit.npsn ? (
                     <p className="text-[11px] text-[#8FA39B] mt-0.5">
                       NPSN: <span className="text-[#F2EEE3] font-mono">{unit.npsn}</span>
                       {unit.accreditation ? ` • Akreditasi: ${unit.accreditation}` : ''}
                     </p>
-                  )}
+                  ) : unit.accreditation ? (
+                    <p className="text-[11px] text-[#8FA39B] mt-0.5">
+                      Akreditasi: <span className="text-[#F2EEE3] font-semibold">{unit.accreditation}</span>
+                    </p>
+                  ) : null}
                 </div>
 
                 {/* Unit Body */}

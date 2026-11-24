@@ -22,7 +22,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersProps) 
   const session = await getSession();
 
   if (!session || session.role !== 'SUPER_ADMIN') {
-    redirect('/admin');
+    redirect('/admin?error=forbidden');
   }
 
   const { edit } = await searchParams;
@@ -42,6 +42,10 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersProps) 
 
   async function saveUserAction(formData: FormData) {
     'use server';
+    const curSession = await getSession();
+    if (!curSession || curSession.role !== 'SUPER_ADMIN') {
+      throw new Error('Akses ditolak: Hanya Super Admin yang diizinkan mengelola pengguna.');
+    }
     const userId = formData.get('userId') as string;
     const name = formData.get('name') as string;
     const email = (formData.get('email') as string).toLowerCase().trim();
@@ -92,6 +96,9 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersProps) 
   async function deleteUserAction(formData: FormData) {
     'use server';
     const currentSession = await getSession();
+    if (!currentSession || currentSession.role !== 'SUPER_ADMIN') {
+      throw new Error('Akses ditolak: Hanya Super Admin yang diizinkan menghapus pengguna.');
+    }
     const userId = formData.get('userId') as string;
 
     if (currentSession?.id === userId) {
@@ -108,6 +115,10 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersProps) 
 
   async function toggleUserAction(formData: FormData) {
     'use server';
+    const currentSession = await getSession();
+    if (!currentSession || currentSession.role !== 'SUPER_ADMIN') {
+      throw new Error('Akses ditolak: Hanya Super Admin yang diizinkan mengubah status pengguna.');
+    }
     const userId = formData.get('userId') as string;
     const currentActive = formData.get('currentActive') === 'true';
 

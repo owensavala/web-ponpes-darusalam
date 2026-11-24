@@ -21,12 +21,19 @@ export const metadata = {
   title: 'Dashboard Manajemen - Admin Darussalam Bacan',
 };
 
-export default async function AdminDashboardPage() {
+interface AdminDashboardProps {
+  searchParams?: Promise<{ error?: string }>;
+}
+
+export default async function AdminDashboardPage({ searchParams }: AdminDashboardProps) {
   const session = await getSession();
 
   if (!session) {
     redirect('/admin/login');
   }
+
+  const resolvedParams = searchParams ? await searchParams : {};
+  const isForbiddenError = resolvedParams.error === 'forbidden';
 
   const isSuperAdmin = session.role === 'SUPER_ADMIN';
   const isAdminUnit = session.role === 'ADMIN_UNIT';
@@ -65,6 +72,19 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* Alert Akses Ditolak (RBAC Protection) */}
+      {isForbiddenError && (
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-3 shadow-sm animate-pulse">
+          <AlertCircle className="w-5 h-5 shrink-0 text-rose-600 mt-0.5" />
+          <div>
+            <strong className="font-bold text-sm text-rose-900 block">Akses Ditolak (403 Forbidden)</strong>
+            <p className="mt-0.5 text-rose-700">
+              Anda tidak memiliki hak akses untuk membuka halaman tersebut. Fitur konfigurasi sistem, manajemen pengguna, dan periode PSB hanya diperuntukkan bagi <strong>Super Admin Yayasan</strong>.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Top Banner Welcome */}
       <div className="bg-gradient-to-r from-[#0F2A24] to-[#173B32] text-[#F2EEE3] rounded-3xl p-6 sm:p-8 border border-[#266052] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

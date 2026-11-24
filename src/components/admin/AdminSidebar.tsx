@@ -50,6 +50,12 @@ export default function AdminSidebar({ session }: AdminSidebarProps) {
   const isPanitia = session.role === 'PANITIA_PSB';
   const isAdminUnit = session.role === 'ADMIN_UNIT';
 
+  const roleUnitBadge = isSuperAdmin
+    ? 'SUPER ADMIN • Yayasan'
+    : isAdminUnit
+    ? `ADMIN UNIT • ${session.unitName || 'Unit'}`
+    : `PANITIA PSB • ${session.unitName || 'Penerimaan'}`;
+
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
@@ -165,8 +171,8 @@ export default function AdminSidebar({ session }: AdminSidebarProps) {
             <BookOpen className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-xs font-bold block">Admin Darussalam</span>
-            <span className="text-[10px] text-[#8FA39B]">{session.name}</span>
+            <span className="text-[10px] font-bold text-[#D8C28A] block">{roleUnitBadge}</span>
+            <span className="text-xs font-bold text-white block truncate">{session.name}</span>
           </div>
         </div>
 
@@ -208,15 +214,16 @@ export default function AdminSidebar({ session }: AdminSidebarProps) {
             </div>
           </div>
 
-          {/* User Info Card */}
-          <div className="p-4 mx-3 my-3 rounded-2xl bg-[#173B32]/70 border border-[#266052] space-y-1">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0F2A24] text-[#D8C28A] border border-[#D8C28A]/30">
-              {session.role}
-            </span>
-            <h4 className="text-xs font-bold text-white pt-1 truncate">{session.name}</h4>
-            <p className="text-[10px] text-[#8FA39B] truncate">
-              {session.unitName ? session.unitName : 'Yayasan Pusat'}
-            </p>
+          {/* User Info Card with Prominent Role & Unit Badge */}
+          <div className="p-4 mx-3 my-3 rounded-2xl bg-[#173B32]/70 border border-[#266052] space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0F2A24] text-[#D8C28A] border border-[#D8C28A]/40 text-[10px] font-black uppercase tracking-wider shadow-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>{roleUnitBadge}</span>
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-white truncate">{session.name}</h4>
+              <p className="text-[10px] text-[#8FA39B] truncate">{session.email}</p>
+            </div>
           </div>
 
           {/* Nav Links */}

@@ -16,7 +16,7 @@ export default async function AdminSettingsPage() {
   const session = await getSession();
 
   if (!session || session.role !== 'SUPER_ADMIN') {
-    redirect('/admin');
+    redirect('/admin?error=forbidden');
   }
 
   const settings = await prisma.siteSetting.findUnique({
@@ -25,6 +25,10 @@ export default async function AdminSettingsPage() {
 
   async function updateSettingsAction(formData: FormData) {
     'use server';
+    const curSession = await getSession();
+    if (!curSession || curSession.role !== 'SUPER_ADMIN') {
+      throw new Error('Akses ditolak: Hanya Super Admin yang diizinkan memperbarui pengaturan yayasan.');
+    }
     const siteName = formData.get('siteName') as string;
     const foundationName = formData.get('foundationName') as string;
     const npyp = formData.get('npyp') as string;

@@ -29,18 +29,19 @@ export default async function AdminUnitPage({ searchParams }: AdminUnitProps) {
   const isSuperAdmin = session.role === 'SUPER_ADMIN';
   const isAdminUnit = session.role === 'ADMIN_UNIT';
 
-  // Tentukan unit mana yang diedit
+  // Tentukan unit mana yang diedit (ADMIN_UNIT terkunci mutlak ke unit miliknya)
   let currentUnitId = id;
-  if (isAdminUnit && session.unitId) {
-    currentUnitId = session.unitId;
+  if (isAdminUnit) {
+    currentUnitId = session.unitId || undefined;
   }
 
   const units = await prisma.educationUnit.findMany({
     orderBy: { displayOrder: 'asc' },
   });
 
-  const selectedUnit =
-    units.find((u) => u.id === currentUnitId) || units[0];
+  const selectedUnit = isAdminUnit
+    ? units.find((u) => u.id === session.unitId) || units[0]
+    : units.find((u) => u.id === currentUnitId) || units[0];
 
   async function updateUnitAction(formData: FormData) {
     'use server';

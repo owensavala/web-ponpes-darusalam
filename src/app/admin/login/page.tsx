@@ -131,49 +131,51 @@ export default function AdminLoginPage() {
             </Button>
           </form>
 
-          {/* Quick Fill Test Accounts */}
-          <div className="pt-4 border-t border-[#266052] space-y-2.5">
-            <span className="text-[11px] font-bold text-[#8FA39B] uppercase tracking-wider block">
-              Akun Pengujian Demo (Password: Darussalam2026!):
-            </span>
-            <div className="grid grid-cols-1 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickFill('superadmin@darussalambacan.sch.id', 'Darussalam2026!')}
-                className="w-full text-left p-2.5 rounded-xl bg-[#0F2A24] hover:bg-[#081714] border border-[#266052] text-xs transition flex justify-between items-center"
-              >
-                <div>
-                  <span className="font-bold text-[#D8C28A] block">1. SUPER_ADMIN (Akses Penuh Yayasan)</span>
-                  <span className="text-[10px] text-[#8FA39B]">superadmin@darussalambacan.sch.id</span>
-                </div>
-                <span className="text-[10px] bg-[#173B32] px-2 py-0.5 rounded text-white font-mono">Pilih</span>
-              </button>
+          {/* Quick Fill Test Accounts (Hanya tampil jika NEXT_PUBLIC_SHOW_DEMO_ACCOUNTS === "true") */}
+          {process.env.NEXT_PUBLIC_SHOW_DEMO_ACCOUNTS === 'true' && (
+            <div className="pt-4 border-t border-[#266052] space-y-2.5">
+              <span className="text-[11px] font-bold text-[#8FA39B] uppercase tracking-wider block">
+                Akun Pengujian Demo (Password: Darussalam2026!):
+              </span>
+              <div className="grid grid-cols-1 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleQuickFill('superadmin@darussalambacan.sch.id', 'Darussalam2026!')}
+                  className="w-full text-left p-2.5 rounded-xl bg-[#0F2A24] hover:bg-[#081714] border border-[#266052] text-xs transition flex justify-between items-center"
+                >
+                  <div>
+                    <span className="font-bold text-[#D8C28A] block">1. SUPER_ADMIN (Akses Penuh Yayasan)</span>
+                    <span className="text-[10px] text-[#8FA39B]">superadmin@darussalambacan.sch.id</span>
+                  </div>
+                  <span className="text-[10px] bg-[#173B32] px-2 py-0.5 rounded text-white font-mono">Pilih</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => handleQuickFill('admin.smptahfizh@darussalambacan.sch.id', 'Darussalam2026!')}
-                className="w-full text-left p-2.5 rounded-xl bg-[#0F2A24] hover:bg-[#081714] border border-[#266052] text-xs transition flex justify-between items-center"
-              >
-                <div>
-                  <span className="font-bold text-emerald-400 block">2. ADMIN_UNIT (Operator SMP Tahfizh)</span>
-                  <span className="text-[10px] text-[#8FA39B]">admin.smptahfizh@darussalambacan.sch.id</span>
-                </div>
-                <span className="text-[10px] bg-[#173B32] px-2 py-0.5 rounded text-white font-mono">Pilih</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickFill('admin.smptahfizh@darussalambacan.sch.id', 'Darussalam2026!')}
+                  className="w-full text-left p-2.5 rounded-xl bg-[#0F2A24] hover:bg-[#081714] border border-[#266052] text-xs transition flex justify-between items-center"
+                >
+                  <div>
+                    <span className="font-bold text-emerald-400 block">2. ADMIN_UNIT (Operator SMP Tahfizh)</span>
+                    <span className="text-[10px] text-[#8FA39B]">admin.smptahfizh@darussalambacan.sch.id</span>
+                  </div>
+                  <span className="text-[10px] bg-[#173B32] px-2 py-0.5 rounded text-white font-mono">Pilih</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => handleQuickFill('panitia.psb@darussalambacan.sch.id', 'Darussalam2026!')}
-                className="w-full text-left p-2.5 rounded-xl bg-[#0F2A24] hover:bg-[#081714] border border-[#266052] text-xs transition flex justify-between items-center"
-              >
-                <div>
-                  <span className="font-bold text-amber-400 block">3. PANITIA_PSB (Verifikasi & Export)</span>
-                  <span className="text-[10px] text-[#8FA39B]">panitia.psb@darussalambacan.sch.id</span>
-                </div>
-                <span className="text-[10px] bg-[#173B32] px-2 py-0.5 rounded text-white font-mono">Pilih</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickFill('panitia.psb@darussalambacan.sch.id', 'Darussalam2026!')}
+                  className="w-full text-left p-2.5 rounded-xl bg-[#0F2A24] hover:bg-[#081714] border border-[#266052] text-xs transition flex justify-between items-center"
+                >
+                  <div>
+                    <span className="font-bold text-amber-400 block">3. PANITIA_PSB (Verifikasi & Export)</span>
+                    <span className="text-[10px] text-[#8FA39B]">panitia.psb@darussalambacan.sch.id</span>
+                  </div>
+                  <span className="text-[10px] bg-[#173B32] px-2 py-0.5 rounded text-white font-mono">Pilih</span>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="text-center mt-6">

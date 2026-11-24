@@ -41,8 +41,8 @@ export default async function AdminPsbPage({ searchParams }: AdminPsbProps) {
   const isAdminUnit = session.role === 'ADMIN_UNIT';
 
   let unitFilter = unit ? { unitId: unit } : {};
-  if (isAdminUnit && session.unitId) {
-    unitFilter = { unitId: session.unitId };
+  if (isAdminUnit) {
+    unitFilter = { unitId: session.unitId || 'none' };
   }
 
   const [registrations, units] = await Promise.all([
@@ -71,7 +71,9 @@ export default async function AdminPsbPage({ searchParams }: AdminPsbProps) {
     }),
   ]);
 
-  const exportUrl = `/api/psb/export?${unit ? `unitId=${unit}&` : ''}${status ? `status=${status}` : ''}`;
+  const exportUrl = isAdminUnit
+    ? `/api/psb/export?unitId=${session.unitId || ''}${status ? `&status=${status}` : ''}`
+    : `/api/psb/export?${unit ? `unitId=${unit}&` : ''}${status ? `status=${status}` : ''}`;
 
   return (
     <div className="space-y-6">

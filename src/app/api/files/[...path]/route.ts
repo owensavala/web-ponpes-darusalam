@@ -40,10 +40,10 @@ export async function GET(
       return new NextResponse('File Not Found', { status: 404 });
     }
 
-    // Cegah path traversal secara ketat
+    // Cegah path traversal secara ketat (normalize + prefix check)
     const safeSegments = pathSegments.map((s) => path.basename(s));
     const baseDir = getStorageBaseDir();
-    const filePath = path.join(/*turbopackIgnore: true*/ baseDir, ...safeSegments);
+    const filePath = path.normalize(path.join(/*turbopackIgnore: true*/ baseDir, ...safeSegments));
 
     // Pastikan path tetap berada di dalam direktori uploads
     const resolvedPath = path.resolve(/*turbopackIgnore: true*/ filePath);

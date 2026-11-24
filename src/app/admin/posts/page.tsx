@@ -34,5 +34,5 @@ export default async function AdminPostsPage() {
     }),
   ]);
 
-  return <PostManager initialPosts={posts} units={units} />;
+  return <PostManager initialPosts={posts} units={units} session={session} />;
 }

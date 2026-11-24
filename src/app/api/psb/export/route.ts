@@ -12,10 +12,10 @@ export async function GET(req: NextRequest) {
     const unitIdParam = searchParams.get('unitId');
     const statusParam = searchParams.get('status');
 
-    // Filter berdasarkan role: Admin unit hanya bisa unduh unit miliknya
+    // Filter berdasarkan role: Admin unit hanya bisa unduh unit miliknya (paksa session.unitId)
     let targetUnitId = unitIdParam || undefined;
-    if (session.role === 'ADMIN_UNIT' && session.unitId) {
-      targetUnitId = session.unitId;
+    if (session.role === 'ADMIN_UNIT') {
+      targetUnitId = session.unitId || 'none';
     }
 
     const registrations = await prisma.psbRegistration.findMany({

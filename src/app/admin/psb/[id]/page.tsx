@@ -51,8 +51,11 @@ export default async function AdminPsbDetailPage({ params }: PsbDetailProps) {
     notFound();
   }
 
+  const registrationUnitId = registration.unitId;
+  const registrationRegNumber = registration.regNumber;
+
   // RBAC check: Jika ADMIN_UNIT, pastikan pendaftar ini di unit miliknya
-  if (session.role === 'ADMIN_UNIT' && session.unitId && registration.unitId !== session.unitId) {
+  if (session.role === 'ADMIN_UNIT' && (!session.unitId || registrationUnitId !== session.unitId)) {
     redirect('/admin/psb');
   }
 
@@ -61,6 +64,12 @@ export default async function AdminPsbDetailPage({ params }: PsbDetailProps) {
   // Server Action untuk update status & catatan
   async function updateStatusAction(formData: FormData) {
     'use server';
+    const curSession = await getSession();
+    if (!curSession) throw new Error('UNAUTHORIZED');
+    if (curSession.role === 'ADMIN_UNIT' && (!curSession.unitId || registrationUnitId !== curSession.unitId)) {
+      throw new Error('Akses ditolak: Anda tidak memiliki wewenang memverifikasi pendaftar unit lain.');
+    }
+
     const newStatus = formData.get('status') as string;
     const adminNotes = formData.get('adminNotes') as string;
 
@@ -75,7 +84,7 @@ export default async function AdminPsbDetailPage({ params }: PsbDetailProps) {
 
     revalidatePath(`/admin/psb/${id}`);
     revalidatePath('/admin/psb');
-    revalidatePath(`/psb/kartu/${registration?.regNumber}`);
+    revalidatePath(`/psb/kartu/${registrationRegNumber}`);
     revalidatePath('/psb/cek-status');
   }
 

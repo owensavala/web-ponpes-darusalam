@@ -7,6 +7,7 @@ import Button from '@/components/ui/Button';
 import { Input, Textarea, Select } from '@/components/ui/Input';
 import FileUpload from '@/components/ui/FileUpload';
 import Modal from '@/components/ui/Modal';
+import { UserSession } from '@/lib/auth';
 
 interface PostData {
   id?: string;
@@ -26,6 +27,7 @@ interface PostFormModalProps {
   postToEdit?: PostData | null;
   isOpen: boolean;
   onClose: () => void;
+  session?: UserSession;
 }
 
 export default function PostFormModal({
@@ -33,9 +35,11 @@ export default function PostFormModal({
   postToEdit,
   isOpen,
   onClose,
+  session,
 }: PostFormModalProps) {
   const router = useRouter();
   const isEditing = !!postToEdit?.id;
+  const isAdminUnit = session?.role === 'ADMIN_UNIT';
 
   const [formData, setFormData] = useState<PostData>({
     title: postToEdit?.title || '',
@@ -45,7 +49,7 @@ export default function PostFormModal({
     type: postToEdit?.type || 'BERITA',
     status: postToEdit?.status || 'PUBLISHED',
     isPinned: postToEdit?.isPinned || false,
-    unitId: postToEdit?.unitId || '',
+    unitId: isAdminUnit ? session?.unitId || '' : postToEdit?.unitId || '',
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -121,18 +125,29 @@ export default function PostFormModal({
             ]}
           />
 
-          <Select
-            label="Unit Terkait"
-            value={formData.unitId || ''}
-            onChange={(e) => setFormData({ ...formData, unitId: e.target.value || null })}
-          >
-            <option value="">Umum / Yayasan</option>
-            {units.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.shortName}
-              </option>
-            ))}
-          </Select>
+          {isAdminUnit ? (
+            <div>
+              <label className="block text-xs font-bold text-[#0F2A24] mb-1.5 uppercase tracking-wide">
+                Unit Terkait (Terkunci Otomatis)
+              </label>
+              <div className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-100 text-slate-700 font-semibold">
+                {session?.unitName || 'Unit Terikat'} (Terkunci)
+              </div>
+            </div>
+          ) : (
+            <Select
+              label="Unit Terkait"
+              value={formData.unitId || ''}
+              onChange={(e) => setFormData({ ...formData, unitId: e.target.value || null })}
+            >
+              <option value="">Umum / Yayasan</option>
+              {units.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.shortName}
+                </option>
+              ))}
+            </Select>
+          )}
 
           <Select
             label="Status Publikasi"
