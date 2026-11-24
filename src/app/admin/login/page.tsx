@@ -87,14 +87,14 @@ export default function AdminLoginPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-[#D8C28A] mb-1.5 uppercase tracking-wide">
-                Alamat Surel / Email
+                Username / Alamat Surel
               </label>
               <div className="relative">
                 <input
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@darussalam.sch.id"
+                  placeholder="superadmin atau nama@darussalambacan.sch.id"
                   required
                   className="w-full px-3.5 py-2.5 pl-10 text-sm rounded-xl border border-[#266052] bg-[#0F2A24] text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#D8C28A]"
                 />

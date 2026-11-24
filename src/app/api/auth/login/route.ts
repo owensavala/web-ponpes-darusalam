@@ -13,8 +13,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+    const input = email.toLowerCase().trim();
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: input },
+          { email: `${input}@darussalambacan.sch.id` },
+          { email: `${input}@darussalam.sch.id` },
+          { email: { startsWith: `${input}@` } },
+        ],
+      },
       include: { unit: true },
     });
 
