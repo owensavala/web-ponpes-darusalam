@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     const uniqueFileName = `${Date.now()}-${baseName.slice(0, 30)}${originalExt}`;
 
     // 1. Jika terhubung dengan Vercel Blob Storage (Production Cloud)
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
+    if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) {
       try {
         const { put } = await import('@vercel/blob');
         const blob = await put(`uploads/${folder}/${uniqueFileName}`, file, {
