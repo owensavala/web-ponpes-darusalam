@@ -52,29 +52,46 @@ export async function GET(
       return new NextResponse('Access Denied', { status: 403 });
     }
 
-    // Periksa keberadaan file
+    // Periksa keberadaan file (coba direktori utama, lalu coba /tmp/uploads)
+    let finalPath = resolvedPath;
+    let found = false;
+    let stats;
+
     try {
-      const stats = await fs.stat(resolvedPath);
-      if (!stats.isFile()) {
-        return new NextResponse('File Not Found', { status: 404 });
-      }
-
-      const ext = path.extname(resolvedPath).toLowerCase();
-      const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-      const fileBuffer = await fs.readFile(resolvedPath);
-
-      return new NextResponse(fileBuffer, {
-        status: 200,
-        headers: {
-          'Content-Type': contentType,
-          'Content-Length': stats.size.toString(),
-          'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
-          'Accept-Ranges': 'bytes',
-        },
-      });
+      stats = await fs.stat(resolvedPath);
+      if (stats.isFile()) found = true;
     } catch {
+      // Coba fallback di /tmp/uploads jika lingkungan serverless
+      try {
+        const tmpPath = path.normalize(path.join('/tmp', 'uploads', ...safeSegments));
+        const tmpStats = await fs.stat(tmpPath);
+        if (tmpStats.isFile()) {
+          finalPath = tmpPath;
+          stats = tmpStats;
+          found = true;
+        }
+      } catch {
+        found = false;
+      }
+    }
+
+    if (!found || !stats) {
       return new NextResponse('File Not Found', { status: 404 });
     }
+
+    const ext = path.extname(finalPath).toLowerCase();
+    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+    const fileBuffer = await fs.readFile(finalPath);
+
+    return new NextResponse(fileBuffer, {
+      status: 200,
+      headers: {
+        'Content-Type': contentType,
+        'Content-Length': stats.size.toString(),
+        'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
+        'Accept-Ranges': 'bytes',
+      },
+    });
   } catch (error) {
     console.error('Error serving file in /api/files:', error);
     return new NextResponse('Internal Server Error', { status: 500 });

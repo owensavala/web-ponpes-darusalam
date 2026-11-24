@@ -59,16 +59,45 @@ export async function POST(req: NextRequest) {
       .replace(/[^a-z0-9_-]/g, '-');
     const uniqueFileName = `${Date.now()}-${baseName.slice(0, 30)}${originalExt}`;
 
-    // Target direktori (dukung UPLOADS_DIR untuk Docker volume / VPS permanen)
+    // 1. Jika terhubung dengan Vercel Blob Storage (Production Cloud)
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const { put } = await import('@vercel/blob');
+        const blob = await put(`uploads/${folder}/${uniqueFileName}`, file, {
+          access: 'public',
+        });
+        return NextResponse.json({
+          success: true,
+          message: 'File berhasil diunggah ke Vercel Blob Storage.',
+          url: blob.url,
+          fileName: file.name,
+          size: file.size,
+          mimeType: file.type,
+        });
+      } catch (blobErr) {
+        console.error('Error saat upload ke Vercel Blob, mencoba fallback disk:', blobErr);
+      }
+    }
+
+    // 2. Fallback penyimpanan disk lokal / VPS / Docker
     const baseDir = process.env.UPLOADS_DIR || path.join(process.cwd(), 'public', 'uploads');
-    const uploadDir = path.join(/*turbopackIgnore: true*/ baseDir, folder);
-    await fs.mkdir(uploadDir, { recursive: true });
+    let targetFilePath = '';
 
-    const filePath = path.join(uploadDir, uniqueFileName);
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    await fs.writeFile(filePath, buffer);
+    try {
+      const uploadDir = path.join(/*turbopackIgnore: true*/ baseDir, folder);
+      await fs.mkdir(uploadDir, { recursive: true });
+      targetFilePath = path.join(uploadDir, uniqueFileName);
+      const bytes = await file.arrayBuffer();
+      await fs.writeFile(targetFilePath, Buffer.from(bytes));
+    } catch (diskErr) {
+      // 3. Fallback jika filesystem induk read-only (misal Vercel tanpa token)
+      console.warn('Filesystem read-only, menggunakan direktori sementara /tmp:', diskErr);
+      const tmpDir = path.join('/tmp', 'uploads', folder);
+      await fs.mkdir(tmpDir, { recursive: true });
+      targetFilePath = path.join(tmpDir, uniqueFileName);
+      const bytes = await file.arrayBuffer();
+      await fs.writeFile(targetFilePath, Buffer.from(bytes));
+    }
 
     // Gunakan Route Handler /api/files/ agar selalu disajikan dinamis secara instan tanpa perlu restart server
     const publicUrl = `/api/files/${folder}/${uniqueFileName}`;
