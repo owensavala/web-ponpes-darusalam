@@ -37,6 +37,20 @@ export async function POST(req: NextRequest) {
       slug = `${slug}-${Date.now().toString().slice(-4)}`;
     }
 
+    // Pastikan authorId selalu valid di tabel User (cocokkan ID atau Email)
+    const author = await prisma.user.findFirst({
+      where: {
+        OR: [{ id: session.id }, { email: session.email }],
+      },
+    });
+
+    if (!author) {
+      return NextResponse.json(
+        { success: false, message: 'Akun penulis tidak ditemukan dalam database.' },
+        { status: 401 }
+      );
+    }
+
     const post = await prisma.post.create({
       data: {
         title,
@@ -48,7 +62,7 @@ export async function POST(req: NextRequest) {
         status: status || 'PUBLISHED',
         isPinned: !!isPinned,
         unitId: assignedUnitId,
-        authorId: session.id,
+        authorId: author.id,
       },
     });
 
